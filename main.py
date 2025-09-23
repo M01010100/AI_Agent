@@ -11,7 +11,15 @@ api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 def main():
+
+    verbose = "--verbose" in sys.argv
+    if verbose:
+        sys.argv.remove("--verbose")
+    
     user_prompt = sys.argv[1] if len(sys.argv) > 1 else input("Enter your prompt: ")
+
+    if verbose:
+        print(f"User prompt: {user_prompt}")
 
     messages = [
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
@@ -29,9 +37,9 @@ def main():
     # Print token usage
     prompt_token_count = response.usage_metadata.prompt_token_count
     candidates_token_count = response.usage_metadata.candidates_token_count
-    
-    print(f"Prompt tokens: {prompt_token_count}")
-    print(f"Response tokens: {candidates_token_count}")
+    if verbose:
+        print(f"Prompt tokens: {prompt_token_count}")
+        print(f"Response tokens: {candidates_token_count}")
 
 
 if __name__ == "__main__":
