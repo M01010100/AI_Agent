@@ -1,51 +1,58 @@
 import os
 import shutil
-from functions.get_files_info import get_files_info
+from functions.get_file_content import get_file_content
 
 def setup_test_environment():
+    # Create calculator directory and its subdirectories
     os.makedirs("calculator/pkg", exist_ok=True)
     
+    # Create test files with the REQUIRED content
     with open("calculator/main.py", "w") as f:
-        f.write("# Test main.py file")
-        
-    with open("calculator/tests.py", "w") as f:
-        f.write("# Test tests.py file")
+        f.write("# Test main.py file\n\ndef main():\n    print('Hello, world!')\n\nif __name__ == '__main__':\n    main()")
         
     with open("calculator/pkg/calculator.py", "w") as f:
-        f.write("# Test calculator.py file")
-        
-    with open("calculator/pkg/render.py", "w") as f:
-        f.write("# Test render.py file")
+        f.write("# Test calculator.py file\nclass Calculator:\n    def _apply_operator(self, operators, values):\n        return operators[0](values[0], values[1])")
+    
+    # Create a large lorem ipsum file
+    with open("calculator/lorem.txt", "w") as f:
+        # Generate a large text (over 20,000 characters)
+        lorem_ipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " * 500
+        f.write(lorem_ipsum)
 
 def cleanup_test_environment():
+    # Remove the test calculator directory
     if os.path.exists("calculator"):
         shutil.rmtree("calculator")
 
-def test_get_files_info():
+def test_get_file_content():
     try:
         setup_test_environment()
         
-        print("get_files_info(\"calculator\", \".\"):")
-        print("Result for current directory:")
-        print(get_files_info("calculator", "."))
-        print()
+        # Test reading a regular file
+        print("get_file_content(\"calculator\", \"main.py\"):")
+        print("Result:")
+        print(get_file_content("calculator", "main.py"))
+        print("\n" + "-"*50 + "\n")
         
-        print("get_files_info(\"calculator\", \"pkg\"):")
-        print("Result for 'pkg' directory:")
-        print(get_files_info("calculator", "pkg"))
-        print()
+        # Test reading a file in a subdirectory
+        print("get_file_content(\"calculator\", \"pkg/calculator.py\"):")
+        print("Result:")
+        print(get_file_content("calculator", "pkg/calculator.py"))
+        print("\n" + "-"*50 + "\n")
         
-        print("get_files_info(\"calculator\", \"/bin\"):")
-        print("Result for '/bin' directory:")
-        print(get_files_info("calculator", "/bin"))
-        print()
+        # Test attempting to read a file outside working directory
+        print("get_file_content(\"calculator\", \"/bin/cat\"):")
+        print("Result:")
+        print(get_file_content("calculator", "/bin/cat"))
+        print("\n" + "-"*50 + "\n")
         
-        print("get_files_info(\"calculator\", \"../\"):")
-        print("Result for '../' directory:")
-        print(get_files_info("calculator", "../"))
+        # Test attempting to read a non-existent file
+        print("get_file_content(\"calculator\", \"pkg/does_not_exist.py\"):")
+        print("Result:")
+        print(get_file_content("calculator", "pkg/does_not_exist.py"))
         
     finally:
         cleanup_test_environment()
 
 if __name__ == "__main__":
-    test_get_files_info()
+    test_get_file_content()
