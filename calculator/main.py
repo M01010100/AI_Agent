@@ -5,8 +5,8 @@ from pkg.render import render_result
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python main.py "expression"")
-        print("Example: python main.py "3 + 4 * 2"")
+        print("Usage: python main.py \"expression\"")
+        print("Example: python main.py \"3 + 4 * 2\"")
         return
         
     expression = sys.argv[1]

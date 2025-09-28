@@ -141,14 +141,11 @@ def call_function(function_call_part, verbose=False):
             ]
         )
     
-    # Add working_directory parameter
     args["working_directory"] = "./calculator"
     
     try:
-        # Call the function with unpacked arguments
         function_result = functions[function_name](**args)
         
-        # Return result as Content object
         return types.Content(
             role="tool",
             parts=[
@@ -159,7 +156,6 @@ def call_function(function_call_part, verbose=False):
             ]
         )
     except Exception as e:
-        # Handle any exceptions during function execution
         return types.Content(
             role="tool",
             parts=[
@@ -171,7 +167,6 @@ def call_function(function_call_part, verbose=False):
         )
 
 def main():
-    # Setup test environment to ensure files exist
     setup_test_environment()
     
     system_prompt = """
@@ -207,16 +202,13 @@ All paths you provide should be relative to the working directory. You do not ne
     if verbose:
         print(f"User prompt: {user_prompt}")
 
-    # Initialize conversation with user's prompt
     messages = [
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
     
-    # Create a conversation loop with a maximum of 20 iterations
     max_iterations = 20
     for i in range(max_iterations):
         try:
-            # Send the current conversation to the model
             response = client.models.generate_content(
                 model=model_name,
                 contents=messages,
@@ -226,35 +218,27 @@ All paths you provide should be relative to the working directory. You do not ne
                 ),
             )
             
-            # Get the latest response
             if not response.candidates or not response.candidates[0].content:
                 print("No response generated.")
                 break
             
             latest_candidate = response.candidates[0]
             
-            # Add model's response to conversation history
             messages.append(latest_candidate.content)
             
-            # Check if this is a function call or a final text response
             function_called = False
             if hasattr(latest_candidate.content, 'parts'):
                 for part in latest_candidate.content.parts:
-                    # Check if part has a function_call and that the function_call has a name attribute
                     if (part and hasattr(part, 'function_call') and 
                         part.function_call is not None and 
                         hasattr(part.function_call, 'name')):
                         
                         function_called = True
-                        # Execute the function
                         function_call_result = call_function(part.function_call, verbose)
                         
-                        # Add function result to conversation
                         messages.append(function_call_result)
             
-            # If no function was called, this is the final response
             if not function_called:
-                # Make sure text attribute exists before trying to print it
                 if hasattr(latest_candidate.content, 'text'):
                     print("Final response:")
                     print(latest_candidate.content.text)
@@ -269,7 +253,6 @@ All paths you provide should be relative to the working directory. You do not ne
             traceback.print_exc()  # Print the full traceback for debugging
             break
     
-    # If we've reached max iterations without a final response
     if i == max_iterations - 1:
         print("Reached maximum number of conversation turns without a final response.")
     
