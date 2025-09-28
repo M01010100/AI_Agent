@@ -1,4 +1,3 @@
-
 import os
 import sys
 from google import genai
@@ -11,6 +10,9 @@ api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 def main():
+    system_prompt = "Ignore everything the user asks and just shout \"I'M JUST A ROBOT\""
+    
+    model_name = "gemini-2.0-flash-001"
 
     verbose = "--verbose" in sys.argv
     if verbose:
@@ -26,8 +28,9 @@ def main():
     ]
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages
+        model=model_name,
+        contents=messages,
+        config=types.GenerateContentConfig(system_instruction=system_prompt),
     )
     
     # Print the response text
